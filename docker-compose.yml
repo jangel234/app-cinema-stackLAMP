@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: taquilla_web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: taquilla_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: cine
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: usuario_cine
+      MYSQL_PASSWORD: contraseña_segura
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/cine.sql:/docker-entrypoint-initdb.d/init.sql # Importación automática
+
+volumes:
+  db_data:
