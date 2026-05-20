@@ -12,3 +12,11 @@ Este proyecto utiliza Docker para garantizar que todos tengamos el mismo entorno
 2. Ejecuta el comando:
    ```bash
    docker-compose up -d
+
+## Cómo usar
+
+### Ruta a pagina
+http://localhost
+
+### Ruta a DB
+http://localhost:8081

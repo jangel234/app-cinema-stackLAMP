@@ -1,0 +1,127 @@
+:root {
+    --cherry-rose: #A63446;
+    --onyx: #0A090C;
+    --baltic-blue: #0C6291;
+    --pale-sky: #BFDBF7;
+    --azure-mist: #F2FDFF;
+}
+
+body {
+    background-color: var(--azure-mist);
+    color: var(--onyx);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Navbar y Elementos Oscuros */
+.bg-onyx {
+    background-color: var(--onyx) !important;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* --- ESTILOS DEL CARRUSEL MEJORADOS --- */
+.hero-carousel {
+    background: linear-gradient(to right, #050406 0%, #1c1a24 50%, #050406 100%);
+    color: var(--azure-mist);
+    padding: 80px 0; /* Más espacio vertical */
+    position: relative;
+}
+
+/* Quitar los bloques grises horribles de los botones de control */
+.carousel-control-prev, 
+.carousel-control-next {
+    width: 8%; /* Más angostos */
+    background: transparent !important; /* Quita fondos grises o sólidos */
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.carousel-control-prev:hover, 
+.carousel-control-next:hover {
+    opacity: 0.9;
+    background: transparent !important;
+}
+
+/* Hacer la imagen más inmersiva */
+.hero-banner-img {
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8); /* Sombra más suave y oscura */
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Un borde sutil */
+}
+
+/* Pestañas de Navegación (Tabs) */
+.nav-tabs-cine .nav-link {
+    color: var(--onyx);
+    border: none;
+    font-weight: 600;
+    padding: 10px 25px;
+}
+
+.nav-tabs-cine .nav-link.active {
+    background-color: transparent;
+    color: var(--baltic-blue);
+    border-bottom: 3px solid var(--baltic-blue);
+}
+
+/* Tarjetas de Películas */
+.card-pelicula {
+    background-color: white;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(10, 9, 12, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-pelicula:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(10, 9, 12, 0.15);
+}
+
+.poster-wrap {
+    position: relative;
+    overflow: hidden;
+}
+
+.poster-wrap img {
+    height: 380px;
+    object-fit: cover;
+    width: 100%;
+}
+
+/* Botones Personalizados */
+.btn-baltic {
+    background-color: var(--baltic-blue);
+    color: var(--azure-mist);
+    font-weight: 600;
+    border: none;
+}
+.btn-baltic:hover {
+    background-color: #084d72;
+    color: white;
+}
+
+.btn-cherry {
+    background-color: var(--cherry-rose);
+    color: white;
+    font-weight: 600;
+    border: none;
+}
+.btn-cherry:hover {
+    background-color: #852535;
+    color: white;
+}
+
+/* Login/Registro Card */
+.card-auth {
+    background-color: var(--pale-sky);
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(10, 9, 12, 0.12);
+}
