@@ -20,3 +20,6 @@ http://localhost
 
 ### Ruta a DB
 http://localhost:8081
+
+
+### Ejecutar en la db : 'SET NAMES utf8mb4;' para evitar problemas de caracteres
