@@ -1,8 +1,14 @@
 <?php
+// 1. TODA LA LÓGICA DEBE IR ANTES DE INCLUIR EL HEADER
 require_once 'db.php';
-include 'includes/header.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $errores = [];
+$registro_exitoso = false;
+$mensaje_exito = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nombre = trim($_POST['nombre'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -17,18 +23,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password_hash) VALUES (?, ?, ?)");
         try {
             $stmt->execute([$nombre, $email, $hash]);
-            $_SESSION['mensaje_registro'] = "¡Registro exitoso! Inicia sesión para continuar.";
-            header('Location: login.php');
-            exit;
+            
+            // OBTENER EL ID DEL NUEVO USUARIO
+            $nuevo_id = $pdo->lastInsertId();
+
+            // INICIAR SESIÓN AUTOMÁTICAMENTE
+            $_SESSION['usuario_id'] = $nuevo_id;
+            $_SESSION['usuario_nombre'] = $nombre;
+
+            // Marcar bandera de éxito para disparar el modal
+            $registro_exitoso = true;
+            $mensaje_exito = "¡Tu cuenta ha sido creada con éxito, $nombre!";
+
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
-                $errores[] = "Este correo electrónico ya está registrado.";
+                $errores[] = "El correo $email ya está registrado. Intenta iniciar sesión.";
             } else {
                 $errores[] = "Ocurrió un error inesperado en el servidor.";
             }
         }
     }
 }
+
+// 2. AHORA SÍ, INCLUIMOS EL HTML
+include 'includes/header.php';
 ?>
 
 <div class="container my-5 py-4">
@@ -39,14 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h3 class="fw-bold" style="color: var(--onyx);">Registrarse</h3>
                     <p class="text-muted small">Únete para obtener beneficios y promociones</p>
                 </div>
-
-                <?php if (!empty($errores)): ?>
-                    <div class="alert alert-danger py-2 small" role="alert">
-                        <ul class="mb-0 ps-3">
-                            <?php foreach($errores as $err): ?> <li><?= $err ?></li> <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
 
                 <form method="POST" action="registro.php">
                     <div class="mb-3">
@@ -72,5 +82,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
+
+<?php if ($registro_exitoso || !empty($errores)): ?>
+<div class="modal fade" id="resultadoModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-body p-4 text-center">
+        
+        <?php if ($registro_exitoso): ?>
+            <h2 class="display-1 text-success mb-3">✅</h2>
+            <h4 class="fw-bold" style="color: var(--onyx);">¡Bienvenido!</h4>
+            <p class="text-muted"><?= htmlspecialchars($mensaje_exito) ?></p>
+            <p class="small text-muted mb-4">Tu sesión ya está activa. Serás redirigido a la cartelera para pedir tus boletos.</p>
+            <a href="index.php" class="btn btn-baltic w-100 py-2">Ir a la Cartelera</a>
+        
+        <?php else: ?>
+            <h2 class="display-1 text-warning mb-3">⚠️</h2>
+            <h4 class="fw-bold" style="color: var(--onyx);">Atención</h4>
+            <div class="text-start mt-3 mb-4 text-muted">
+                <ul class="mb-0">
+                    <?php foreach($errores as $err): ?> <li><?= htmlspecialchars($err) ?></li> <?php endforeach; ?>
+                </ul>
+            </div>
+            <button type="button" class="btn btn-cherry w-100 py-2" data-bs-dismiss="modal">Entendido</button>
+        <?php endif; ?>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var myModal = new bootstrap.Modal(document.getElementById('resultadoModal'));
+        myModal.show();
+    });
+</script>
+<?php endif; ?>
 
 <?php include 'includes/footer.php'; ?>

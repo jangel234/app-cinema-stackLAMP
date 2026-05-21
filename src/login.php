@@ -1,6 +1,15 @@
 <?php
+// 1. TODA LA LÓGICA DE VALIDACIÓN VA PRIMERO
 require_once 'db.php';
-include 'includes/header.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Si el usuario ya tiene sesión, lo mandamos directo al dashboard
+if (isset($_SESSION['usuario_id'])) {
+    header('Location: index.php');
+    exit;
+}
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -14,12 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($usuario && password_verify($password, $usuario['password_hash'])) {
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario_nombre'] = $usuario['nombre'];
+        // Como no hemos impreso HTML, esta redirección funcionará perfecto
         header('Location: index.php');
         exit;
     } else {
         $error = "El correo o la contraseña son incorrectos.";
     }
 }
+
+// 2. AHORA SÍ, INCLUIMOS EL DISEÑO FRONTEND
+include 'includes/header.php';
 ?>
 
 <div class="container my-5 py-5">
@@ -28,11 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card card-auth p-4">
                 <div class="text-center mb-4">
                     <h3 class="fw-bold" style="color: var(--onyx);">Iniciar Sesión</h3>
-                    <p class="text-muted small">Accede para comprar y gestionar tus boletos</p>
+                    <p class="text-muted small">Accede para pedir tus boletos</p>
                 </div>
 
                 <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger py-2 small" role="alert"><?= $error ?></div>
+                    <div class="alert alert-danger py-2 small" role="alert"><?= htmlspecialchars($error) ?></div>
                 <?php endif; ?>
 
                 <form method="POST" action="login.php">
