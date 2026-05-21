@@ -40,7 +40,6 @@ CREATE TABLE funciones (
     sala_id INT NOT NULL,
     fecha_hora DATETIME NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
-    asientos_disponibles INT NOT NULL,
     FOREIGN KEY (pelicula_id) REFERENCES peliculas(id) ON DELETE CASCADE,
     FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE
 );
@@ -56,28 +55,72 @@ CREATE TABLE promociones (
     fecha_fin DATE
 );
 
--- 6. Compras (Ahora enlazadas a la función, no a la película en general)
+-- 6. Compras (Representa la transacción general)
 CREATE TABLE compras (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
-    funcion_id INT NOT NULL,
-    cantidad INT NOT NULL,
     total DECIMAL(10,2) NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (funcion_id) REFERENCES funciones(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
+
+-- 7. Asientos (NUEVO: Define la disposición física de los asientos en una sala)
+CREATE TABLE asientos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sala_id INT NOT NULL,
+    fila VARCHAR(5) NOT NULL,
+    numero INT NOT NULL,
+    tipo ENUM('normal', 'preferencial', 'discapacitado') DEFAULT 'normal',
+    UNIQUE KEY (sala_id, fila, numero),
+    FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE
+);
+
+-- 8. Boletos (NUEVO: Representa cada boleto individual de una compra)
+CREATE TABLE boletos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    compra_id INT NOT NULL,
+    funcion_id INT NOT NULL,
+    asiento_id INT NOT NULL,
+    precio_pagado DECIMAL(10,2) NOT NULL,
+    UNIQUE KEY (funcion_id, asiento_id) COMMENT 'Evita que un asiento se venda dos veces para la misma función',
+    FOREIGN KEY (compra_id) REFERENCES compras(id) ON DELETE CASCADE,
+    FOREIGN KEY (funcion_id) REFERENCES funciones(id) ON DELETE CASCADE,
+    FOREIGN KEY (asiento_id) REFERENCES asientos(id) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- TRIGGERS
+-- ==========================================
 
 -- ==========================================
 -- INSERCIÓN DE DATOS DE PRUEBA
 -- ==========================================
 
 -- Insertar Salas
-INSERT INTO salas (nombre, capacidad, tipo) VALUES
-('Sala 1', 100, 'Tradicional'),
-('Sala 2', 100, '3D'),
-('Sala 3 VIP', 40, 'VIP'),
-('Sala IMAX', 150, 'IMAX');
+INSERT INTO salas (id, nombre, capacidad, tipo) VALUES
+(1, 'Sala 1', 100, 'Tradicional'),
+(2, 'Sala 2', 100, 'Tradicional'),
+(3, 'Sala 3', 100, 'Tradicional'),
+(4, 'Sala 4', 100, '3D'),
+(5, 'Sala 5 VIP', 40, 'VIP'),
+(6, 'Sala 6 VIP', 40, 'VIP'),
+(7, 'Sala IMAX', 150, 'IMAX'),
+(8, 'Sala IMAX', 150, 'IMAX');
+
+
+INSERT INTO asientos (sala_id, fila, numero)
+WITH RECURSIVE Filas AS (
+    SELECT 'A' AS fila
+    UNION ALL SELECT CHAR(ASCII(fila) + 1) FROM Filas WHERE ASCII(fila) < ASCII('I')
+),
+Numeros AS (
+    SELECT 1 AS numero
+    UNION ALL SELECT numero + 1 FROM Numeros WHERE numero < 9
+)
+SELECT s.id, F.fila, N.numero 
+FROM salas s
+CROSS JOIN Filas F
+CROSS JOIN Numeros N;
 
 -- Insertar 15 Películas Populares
 INSERT INTO peliculas (titulo, sinopsis, duracion, clasificacion, genero, poster_url, banner_url, estado) VALUES
@@ -97,12 +140,79 @@ INSERT INTO peliculas (titulo, sinopsis, duracion, clasificacion, genero, poster
 ('Shrek', 'Un ogro gruñón emprende un viaje para rescatar a una princesa.', 90, 'A', 'Animación', 'img/posters/shrek.jpg', 'img/banners/shrek_banner.jpg', 'cartelera'),
 ('Volver al Futuro', 'Un joven es enviado accidentalmente 30 años en el pasado.', 116, 'A', 'Ciencia Ficción', 'img/posters/bttf.jpg', 'img/banners/bttf_banner.jpg', 'cartelera');
 
--- Insertar Funciones de prueba (Asumiendo que hoy es una fecha cercana)
-INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio, asientos_disponibles) VALUES
-(1, 4, DATE_ADD(NOW(), INTERVAL 1 DAY), 120.00, 150), -- Interestelar IMAX
-(3, 1, DATE_ADD(NOW(), INTERVAL 2 HOUR), 80.00, 100), -- Mario Bros
-(6, 2, DATE_ADD(NOW(), INTERVAL 5 HOUR), 95.00, 100), -- Spiderman 3D
-(4, 3, DATE_ADD(NOW(), INTERVAL 1 DAY), 150.00, 40);  -- Oppenheimer VIP
+-- ==========================================
+-- FUNCIONES 26 MAY – 2 JUN 2026
+-- (3 funciones por película, total 45)
+-- ==========================================
+
+-- Martes 26 de mayo (5 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(1, 7, '2026-05-26 16:00:00', 120.00),   -- Interestelar IMAX
+(2, 5, '2026-05-26 18:00:00', 150.00),   -- Avengers VIP
+(5, 2, '2026-05-26 18:00:00', 80.00),    -- Barbie Tradicional
+(3, 1, '2026-05-26 20:00:00', 80.00),    -- Mario Bros Tradicional
+(4, 4, '2026-05-26 22:00:00', 95.00);    -- Oppenheimer 3D
+
+-- Miércoles 27 de mayo (5 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(6, 8, '2026-05-27 16:00:00', 120.00),   -- Spider-Man IMAX
+(9, 2, '2026-05-27 16:00:00', 80.00),    -- Jurassic Park Tradicional
+(8, 3, '2026-05-27 18:00:00', 80.00),    -- Toy Story Tradicional
+(10, 4, '2026-05-27 18:00:00', 95.00),   -- Avatar 3D
+(7, 6, '2026-05-27 20:00:00', 150.00);   -- El Caballero de la Noche VIP
+
+-- Jueves 28 de mayo (5 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(13, 1, '2026-05-28 18:00:00', 80.00),   -- Deadpool Tradicional
+(15, 8, '2026-05-28 18:00:00', 120.00),  -- Volver al Futuro IMAX
+(11, 7, '2026-05-28 20:00:00', 120.00),  -- El Rey León IMAX
+(12, 5, '2026-05-28 22:00:00', 150.00),  -- Matrix VIP
+(14, 2, '2026-05-28 22:00:00', 80.00);   -- Shrek Tradicional
+
+-- Viernes 29 de mayo (6 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(3, 6, '2026-05-29 16:00:00', 150.00),   -- Mario Bros VIP
+(7, 1, '2026-05-29 16:00:00', 80.00),    -- El Caballero Tradicional
+(11, 2, '2026-05-29 18:00:00', 80.00),   -- El Rey León Tradicional
+(1, 3, '2026-05-29 20:00:00', 80.00),    -- Interestelar Tradicional
+(9, 4, '2026-05-29 20:00:00', 95.00),    -- Jurassic Park 3D
+(5, 8, '2026-05-29 22:00:00', 120.00);   -- Barbie IMAX
+
+-- Sábado 30 de mayo (6 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(2, 7, '2026-05-30 16:00:00', 120.00),   -- Avengers IMAX
+(12, 4, '2026-05-30 16:00:00', 95.00),   -- Matrix 3D
+(6, 3, '2026-05-30 18:00:00', 80.00),    -- Spider-Man Tradicional
+(4, 5, '2026-05-30 20:00:00', 150.00),   -- Oppenheimer VIP
+(8, 8, '2026-05-30 22:00:00', 120.00),   -- Toy Story IMAX
+(10, 1, '2026-05-30 22:00:00', 80.00);   -- Avatar Tradicional
+
+-- Domingo 31 de mayo (6 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(5, 1, '2026-05-31 16:00:00', 80.00),    -- Barbie Tradicional
+(15, 2, '2026-05-31 16:00:00', 80.00),   -- Volver al Futuro Tradicional
+(14, 4, '2026-05-31 18:00:00', 95.00),   -- Shrek 3D
+(13, 6, '2026-05-31 20:00:00', 150.00),  -- Deadpool VIP
+(2, 3, '2026-05-31 22:00:00', 80.00),    -- Avengers Tradicional
+(7, 7, '2026-05-31 22:00:00', 120.00);   -- El Caballero IMAX
+
+-- Lunes 1 de junio (6 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(8, 5, '2026-06-01 16:00:00', 150.00),   -- Toy Story VIP
+(4, 1, '2026-06-01 18:00:00', 80.00),    -- Oppenheimer Tradicional
+(9, 7, '2026-06-01 18:00:00', 120.00),   -- Jurassic Park IMAX
+(3, 8, '2026-06-01 20:00:00', 120.00),   -- Mario Bros IMAX
+(12, 2, '2026-06-01 20:00:00', 80.00),   -- Matrix Tradicional
+(10, 6, '2026-06-01 22:00:00', 150.00);  -- Avatar VIP
+
+-- Martes 2 de junio (6 funciones)
+INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
+(13, 7, '2026-06-02 16:00:00', 120.00),  -- Deadpool IMAX
+(1, 6, '2026-06-02 18:00:00', 150.00),   -- Interestelar VIP
+(14, 3, '2026-06-02 20:00:00', 80.00),   -- Shrek Tradicional
+(6, 5, '2026-06-02 22:00:00', 150.00),   -- Spider-Man VIP
+(11, 4, '2026-06-02 22:00:00', 95.00),   -- El Rey León 3D
+(15, 8, '2026-06-02 22:00:00', 120.00);  -- Volver al Futuro IMAX
 
 -- Insertar Promociones
 INSERT INTO promociones (titulo, descripcion, imagen_url, codigo_descuento, fecha_inicio, fecha_fin) VALUES
