@@ -97,7 +97,7 @@ include 'includes/header.php';
     
     .mapa-asientos {
         display: grid;
-        grid-template-columns: repeat(10, 1fr); /* Asumiendo max 10 asientos por fila */
+        grid-template-columns: repeat(9, 1fr); /* Asumiendo max 10 asientos por fila */
         gap: 10px;
         justify-content: center;
         max-width: 600px;

@@ -10,6 +10,8 @@ services:
       - "80:80"
     volumes:
       - ./src:/var/www/html
+      - ./scripts:/var/www/scripts
+      - ./mis_respaldos:/backups/cine
     depends_on:
       - db
 

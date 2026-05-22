@@ -66,6 +66,14 @@ try {
     // 4. Confirmar la transacción
     $pdo->commit();
 
+    // 4.5. EJECUCIÓN DE SCRIPT DE RESPALDO AUTOMÁTICO
+    $script_respaldo = realpath(__DIR__ . '/../scripts/backup_cine.sh');
+    if ($script_respaldo) {
+        // REPARACIÓN CRÍTICA PARA WINDOWS: Elimina los saltos de línea CRLF (\r) del script
+        shell_exec("sed -i 's/\\r$//' " . escapeshellarg($script_respaldo));
+        shell_exec("bash " . escapeshellarg($script_respaldo) . " > /dev/null 2>&1 &");
+    }
+
    // 5. Envío REAL de correo electrónico con PHPMailer
     $stmtEmail = $pdo->prepare("SELECT email, nombre FROM usuarios WHERE id = ?");
     $stmtEmail->execute([$usuario_id]);
