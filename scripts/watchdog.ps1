@@ -2,7 +2,7 @@
 $Servicios = @("taquilla_web", "taquilla_db", "taquilla_pma")
 
 # Ruta del log en la misma carpeta del script
-$LogFile = Join-Path -Path $PSScriptRoot -ChildPath "cine_watchdog.log"
+# $LogFile = Join-Path -Path $PSScriptRoot -ChildPath "cine_watchdog.log"
 
 Write-Host "Iniciando Watchdog en PowerShell... Presiona Ctrl+C para detener." -ForegroundColor Green
 

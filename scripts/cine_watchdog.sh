@@ -7,7 +7,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # Sin color
 
 # Guardamos el log en la carpeta del proyecto
-LOG="$(dirname "$0")/../cine_watchdog.log"
+# LOG="$(dirname "$0")/../cine_watchdog.log"
 
 # CORRECCIÓN: Espacio agregado correctamente
 SERVICIOS=("taquilla_web" "taquilla_db" "taquilla_pma")
