@@ -1,42 +1,48 @@
 #!/bin/bash
 
-LOG="/var/log/cine_error.log"
-# Guardamos el log en la carpeta del proyecto para evitar problemas de permisos en Windows
+# Colores para las alertas en consola
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # Sin color
+
+# Guardamos el log en la carpeta del proyecto
 LOG="$(dirname "$0")/../cine_watchdog.log"
-# Usamos los nombres exactos de tus contenedores en Docker
-SERVICIOS=("taquilla_web" "taquilla_db")
 
-# Intenta crear el log si no existe
-touch "$LOG" 2>/dev/null
-echo "Iniciando Watchdog (Simulación para Windows)... Presiona Ctrl+C para detener."
+# CORRECCIÓN: Espacio agregado correctamente
+SERVICIOS=("taquilla_web" "taquilla_db" "taquilla_pma")
 
-for svc in "${SERVICIOS[@]}"; do
-    # Preguntamos a Docker si el contenedor está en estado "Running"
-    if [ "$(docker inspect -f '{{.State.Running}}' "$svc" 2>/dev/null)" != "true" ]; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') - $svc está caído. Reiniciando..." >> "$LOG"
-        docker start "$svc" > /dev/null
-        if [ "$(docker inspect -f '{{.State.Running}}' "$svc" 2>/dev/null)" == "true" ]; then
-            echo "$(date '+%Y-%m-%d %H:%M:%S') - $svc reiniciado con éxito." >> "$LOG"
-        else
-            echo "$(date '+%Y-%m-%d %H:%M:%S') - ERROR: No se pudo reiniciar $svc." >> "$LOG"
+echo -e "${GREEN}Iniciando Watchdog (Simulación para Windows)... Presiona Ctrl+C para detener.${NC}"
+
+# docker ps -a 
+
 while true; do
-    # Intenta crear el log si no existe
     touch "$LOG" 2>/dev/null
 
     for svc in "${SERVICIOS[@]}"; do
-        # Preguntamos a Docker si el contenedor está en estado "Running"
         if [ "$(docker inspect -f '{{.State.Running}}' "$svc" 2>/dev/null)" != "true" ]; then
-            echo "$(date '+%Y-%m-%d %H:%M:%S') - $svc está caído. Reiniciando..." >> "$LOG"
-            docker start "$svc" > /dev/null
+            FECHA=$(date '+%Y-%m-%d %H:%M:%S')
+            
+            echo -e "${YELLOW}[$FECHA] ALERTA: $svc está caído. Intentando reiniciar...${NC}"
+            echo "$FECHA - $svc está caído. Reiniciando..." >> "$LOG"
+            
+            # MEJORA: En lugar de ocultar el error, lo capturamos en una variable
+            START_OUTPUT=$(docker start "$svc" 2>&1)
+            
+            # Damos 2 segundos para ver si el contenedor sobrevive al arranque
+            sleep 2
+            
             if [ "$(docker inspect -f '{{.State.Running}}' "$svc" 2>/dev/null)" == "true" ]; then
-                echo "$(date '+%Y-%m-%d %H:%M:%S') - $svc reiniciado con éxito." >> "$LOG"
+                echo -e "${GREEN}[$FECHA] ÉXITO: $svc reiniciado correctamente.${NC}"
+                echo "$FECHA - $svc reiniciado con éxito." >> "$LOG"
             else
-                echo "$(date '+%Y-%m-%d %H:%M:%S') - ERROR: No se pudo reiniciar $svc." >> "$LOG"
+                # Ahora imprimimos exactamente por qué falló
+                echo -e "${RED}[$FECHA] ERROR CRÍTICO: No se pudo mantener $svc en ejecución.${NC}"
+                echo -e "${RED}Motivo reportado por Docker: $START_OUTPUT${NC}"
+                echo "$FECHA - ERROR: No se pudo reiniciar $svc. Detalle: $START_OUTPUT" >> "$LOG"
             fi
         fi
-    fi
     done
     
-    # Espera 10 segundos antes de volver a revisar (ideal para presentaciones rápidas)
-    sleep 10
+    sleep 5
 done
