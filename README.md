@@ -36,6 +36,14 @@ lbaopekbxpaxitpmwvj
 
 
 
-### cred
+### cred super admin
 admin@cine.local
 Admin1234
+
+### cred  admin
+aminN@cine.local
+Admin0987
+
+### cred user 
+jaguilar57@uol.mx
+123456

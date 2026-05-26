@@ -1,14 +1,3 @@
-DROP DATABASE IF EXISTS cine;
-CREATE DATABASE cine CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE cine;
-
-
-
--- DE AQUI PARA ABAJO VAN LOS RESPALDOS
-
-
-
-
 /*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19-11.8.6-MariaDB, for debian-linux-gnu (x86_64)
 --
