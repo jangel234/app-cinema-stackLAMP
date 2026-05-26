@@ -7,12 +7,40 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+function ensurePromocionesSchema(PDO $pdo) {
+    $fields = [
+        'stock' => "INT NOT NULL DEFAULT 0 AFTER codigo_descuento",
+        'descuento' => "DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER codigo_descuento",
+        'tipo' => "ENUM('monto','porcentaje','2x1') NOT NULL DEFAULT 'monto' AFTER descuento",
+    ];
+
+    foreach ($fields as $field => $definition) {
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM promociones LIKE ?");
+        $stmt->execute([$field]);
+        if (!$stmt->fetch()) {
+            $pdo->exec("ALTER TABLE promociones ADD COLUMN {$field} {$definition}");
+        }
+    }
+}
+
+function ensureComprasSchema(PDO $pdo) {
+    $stmt = $pdo->prepare("SHOW COLUMNS FROM compras LIKE 'promocion_id'");
+    $stmt->execute();
+    if (!$stmt->fetch()) {
+        $pdo->exec("ALTER TABLE compras ADD COLUMN promocion_id INT NULL AFTER total");
+    }
+}
+
+ensurePromocionesSchema($pdo);
+ensureComprasSchema($pdo);
+
 if (!isset($_SESSION['usuario_id'])) {
     header('Location: login.php');
     exit;
 }
 
 $funcion_id = $_POST['funcion_id'] ?? 0;
+$promocion_id = !empty($_POST['promocion_id']) ? (int)$_POST['promocion_id'] : null;
 $asientos_seleccionados = $_POST['asientos'] ?? [];
 
 // Si alguien entra directamente a esta URL sin enviar datos, lo regresamos al inicio
@@ -25,6 +53,8 @@ $cantidad = count($asientos_seleccionados);
 $usuario_id = $_SESSION['usuario_id'];
 $nombres_asientos = [];
 $error_compra = '';
+$promoTitulo = '';
+$compra_id = 0;
 
 $pdo->beginTransaction();
 try {
@@ -42,25 +72,56 @@ try {
     if (!$funcion) throw new Exception("La función seleccionada ya no existe.");
     
     $precio_unitario = $funcion['precio'];
-    $total = $cantidad * $precio_unitario;
+    $descuento = 0.00;
+    $promoTitulo = '';
+    if ($promocion_id) {
+        $stmtPromo = $pdo->prepare("SELECT id, titulo, descuento, tipo FROM promociones WHERE id = ? AND stock > 0 AND fecha_inicio <= NOW() AND fecha_fin >= NOW() LIMIT 1 FOR UPDATE");
+        $stmtPromo->execute([$promocion_id]);
+        $promoData = $stmtPromo->fetch();
+        if (!$promoData) {
+            throw new Exception("La promoción seleccionada ya no está disponible.");
+        }
+        $promoTitulo = $promoData['titulo'];
+
+        $subtotal = $cantidad * $precio_unitario;
+        if ($promoData['tipo'] === 'porcentaje') {
+            $descuento = $subtotal * (floatval($promoData['descuento']) / 100);
+        } elseif ($promoData['tipo'] === '2x1') {
+            $pares = ceil($cantidad / 2);
+            $descuento = $subtotal - ($pares * $precio_unitario);
+        } else {
+            $descuento = floatval($promoData['descuento']);
+        }
+    }
+
+    $total = max(0, $cantidad * $precio_unitario - $descuento);
 
     // 2. Registrar la compra principal
-    $stmt = $pdo->prepare("INSERT INTO compras (usuario_id, total) VALUES (?, ?)");
-    $stmt->execute([$usuario_id, $total]);
+    $stmt = $pdo->prepare("INSERT INTO compras (usuario_id, total, promocion_id) VALUES (?, ?, ?)");
+    $stmt->execute([$usuario_id, $total, $promocion_id]);
     $compra_id = $pdo->lastInsertId();
 
     // 3. Intentar reservar cada asiento y obtener sus etiquetas para el ticket
     $stmtBoletos = $pdo->prepare("INSERT INTO boletos (compra_id, funcion_id, asiento_id, precio_pagado) VALUES (?, ?, ?, ?)");
     $stmtDetalleAsiento = $pdo->prepare("SELECT fila, numero FROM asientos WHERE id = ?");
 
+    $precioPorBoleto = round($total / $cantidad, 2);
     foreach ($asientos_seleccionados as $asiento_id) {
         // Reservar en BD (falla si el asiento ya fue tomado por la llave única)
-        $stmtBoletos->execute([$compra_id, $funcion_id, (int)$asiento_id, $precio_unitario]);
+        $stmtBoletos->execute([$compra_id, $funcion_id, (int)$asiento_id, $precioPorBoleto]);
         
         // Obtener el nombre del asiento (Ej: A1, B4) para el ticket
         $stmtDetalleAsiento->execute([(int)$asiento_id]);
         $asiento_data = $stmtDetalleAsiento->fetch();
         $nombres_asientos[] = $asiento_data['fila'] . $asiento_data['numero'];
+    }
+
+    if ($promocion_id) {
+        $stmtUpdatePromo = $pdo->prepare("UPDATE promociones SET stock = stock - 1 WHERE id = ? AND stock > 0");
+        $stmtUpdatePromo->execute([$promocion_id]);
+        if ($stmtUpdatePromo->rowCount() === 0) {
+            throw new Exception("La promoción ya no está disponible.");
+        }
     }
 
     // 4. Confirmar la transacción
@@ -105,6 +166,9 @@ try {
         $mail->isHTML(true);                                  
         $mail->Subject = 'Tu Ticket Digital - CineStack #' . $compra_id;
         
+        $promocionInfoHTML = $promoTitulo ? "<p><strong>Promoción aplicada:</strong> " . htmlspecialchars($promoTitulo) . "</p>" : '';
+        $promocionInfoAlt = $promoTitulo ? " | Promoción: {$promoTitulo}" : '';
+
         $cuerpoHTML = "
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 10px;'>
                 <h2 style='color: #0C6291; text-align: center;'>¡Gracias por tu compra, {$usuario_data['nombre']}!</h2>
@@ -113,6 +177,7 @@ try {
                 <p><strong>Fecha y Hora:</strong> " . date('d/m/Y h:i A', strtotime($funcion['fecha_hora'])) . "</p>
                 <p><strong>Sala:</strong> {$funcion['sala']}</p>
                 <p><strong>Asientos:</strong> " . implode(", ", $nombres_asientos) . "</p>
+                $promocionInfoHTML
                 <p><strong>Total:</strong> $" . number_format($total, 2) . "</p>
                 <hr>
                 <p style='text-align: center; color: #777;'>Muestra este correo en taquilla o confitería para ingresar.</p>
@@ -120,7 +185,7 @@ try {
         ";
         
         $mail->Body    = $cuerpoHTML;
-        $mail->AltBody = "Película: {$funcion['titulo']} | Sala: {$funcion['sala']} | Asientos: " . implode(", ", $nombres_asientos);
+        $mail->AltBody = "Película: {$funcion['titulo']} | Sala: {$funcion['sala']} | Asientos: " . implode(", ", $nombres_asientos) . $promocionInfoAlt;
 
         $mail->send();
     } catch (Exception $e) {
@@ -198,6 +263,12 @@ include 'includes/header.php';
                             </div>
                         </div>
 
+                        <?php if (!empty($promoTitulo)): ?>
+                            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded shadow-sm mb-2 border border-light">
+                                <span class="text-muted fw-bold">Promoción aplicada:</span>
+                                <span class="fw-bold text-primary"><?= htmlspecialchars($promoTitulo) ?></span>
+                            </div>
+                        <?php endif; ?>
                         <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm mt-2 border border-light">
                             <span class="text-muted fw-bold">Total Pagado:</span>
                             <span class="fw-bold fs-4 text-success">$<?= number_format($total, 2) ?></span>

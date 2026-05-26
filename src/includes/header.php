@@ -27,6 +27,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link px-3" href="index.php">Cartelera</a></li>
                 <?php if (isset($_SESSION['usuario_id'])): ?>
+                    <?php if (isset($_SESSION['usuario_rol']) && in_array($_SESSION['usuario_rol'], ['superadmin', 'admin'], true)): ?>
+                        <li class="nav-item"><a class="nav-link px-3" href="admin.php">Panel Admin</a></li>
+                    <?php endif; ?>
                     <li class="nav-item"><span class="nav-link text-light px-3">🍿 Hola, <?= htmlspecialchars($_SESSION['usuario_nombre']) ?></span></li>
                     <li class="nav-item"><a class="btn btn-cherry btn-sm ms-2 px-3" href="logout.php">Salir</a></li>
                 <?php else: ?>

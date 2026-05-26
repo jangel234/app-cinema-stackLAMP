@@ -2,6 +2,71 @@
 require_once 'db.php';
 include 'includes/header.php';
 
+?>
+<style>
+    .poster-wrap {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .movie-synopsis-overlay {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 42%;
+        background: linear-gradient(180deg, rgba(12, 98, 145, 0.08) 0%, rgba(6, 35, 70, 0.88) 100%);
+        color: #ffffff;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        text-align: left;
+        gap: 0.5rem;
+    }
+
+    .card-pelicula:hover .movie-synopsis-overlay,
+    .card-pelicula:focus-within .movie-synopsis-overlay {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .movie-synopsis-overlay h6 {
+        margin: 0;
+        font-size: 0.95rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #f8f9fa;
+    }
+
+    .movie-synopsis-overlay p {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .movie-synopsis-overlay::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(12,98,145,.72) 0%, rgba(6,35,70,.96) 100%);
+        pointer-events: none;
+    }
+
+    .movie-synopsis-overlay > * {
+        position: relative;
+        z-index: 1;
+    }
+</style>
+
+<?php
+
 // 1. Obtener películas para el Carrusel destacado (Limitado a 3)
 $stmtHero = $pdo->query("SELECT * FROM peliculas WHERE estado = 'cartelera' LIMIT 3");
 $moviesHero = $stmtHero->fetchAll();
@@ -77,6 +142,10 @@ $moviesGrid = $stmtGrid->fetchAll();
                                     <img src="<?= htmlspecialchars($movie['poster_url']) ?>"
                                         alt="<?= htmlspecialchars($movie['titulo']) ?>" class="img-fluid"
                                         onerror="this.onerror=null; this.src='img/posters/placeholder_vertical.jpg';">
+                                    <div class="movie-synopsis-overlay">
+                                        <h6>Sinopsis</h6>
+                                        <p><?= htmlspecialchars(substr($movie['sinopsis'], 0, 140)) ?><?= strlen($movie['sinopsis']) > 140 ? '...' : '' ?></p>
+                                    </div>
                                 </div>
                                 <div class="card-body d-flex flex-column p-3">
                                     <h6 class="card-title fw-bold text-truncate mb-1"
@@ -113,6 +182,10 @@ $moviesGrid = $stmtGrid->fetchAll();
                                 <div class="poster-wrap">
                                     <img src="<?= htmlspecialchars($movie['poster_url']) ?>"
                                         alt="<?= htmlspecialchars($movie['titulo']) ?>">
+                                    <div class="movie-synopsis-overlay">
+                                        <h6>Sinopsis</h6>
+                                        <p><?= htmlspecialchars(substr($movie['sinopsis'], 0, 140)) ?><?= strlen($movie['sinopsis']) > 140 ? '...' : '' ?></p>
+                                    </div>
                                 </div>
                                 <div class="card-body d-flex flex-column p-3">
                                     <h6 class="card-title fw-bold text-truncate mb-1"><?= htmlspecialchars($movie['titulo']) ?>

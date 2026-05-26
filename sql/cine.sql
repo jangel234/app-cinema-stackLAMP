@@ -8,7 +8,7 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    rol ENUM('cliente', 'admin') DEFAULT 'cliente',
+    rol ENUM('cliente', 'admin', 'superadmin') DEFAULT 'cliente',
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -52,7 +52,10 @@ CREATE TABLE promociones (
     imagen_url VARCHAR(255),
     codigo_descuento VARCHAR(20),
     fecha_inicio DATE,
-    fecha_fin DATE
+    fecha_fin DATE,
+    tipo ENUM('monto','porcentaje','2x1') NOT NULL DEFAULT 'monto',
+    stock INT NOT NULL DEFAULT 0,
+    descuento DECIMAL(10,2) NOT NULL DEFAULT 0.00
 );
 
 -- 6. Compras (Representa la transacción general)
@@ -60,8 +63,10 @@ CREATE TABLE compras (
     id INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT NOT NULL,
     total DECIMAL(10,2) NOT NULL,
+    promocion_id INT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+    FOREIGN KEY (promocion_id) REFERENCES promociones(id)
 );
 
 -- 7. Asientos (NUEVO: Define la disposición física de los asientos en una sala)
@@ -215,6 +220,6 @@ INSERT INTO funciones (pelicula_id, sala_id, fecha_hora, precio) VALUES
 (15, 8, '2026-06-02 22:00:00', 120.00);  -- Volver al Futuro IMAX
 
 -- Insertar Promociones
-INSERT INTO promociones (titulo, descripcion, imagen_url, codigo_descuento, fecha_inicio, fecha_fin) VALUES
-('Martes 2x1', 'Disfruta de todas las películas al 2x1 todos los martes.', 'img/promos/martes2x1.jpg', 'MARTES2X1', '2024-01-01', '2024-12-31'),
-('Combo Nachos', 'Compra un boleto IMAX y llévate unos nachos a mitad de precio.', 'img/promos/nachos.jpg', NULL, '2024-06-01', '2024-08-31');
+INSERT INTO promociones (titulo, descripcion, imagen_url, codigo_descuento, fecha_inicio, fecha_fin, tipo, stock, descuento) VALUES
+('CineStack: el mejor 2x1', 'Disfruta de todas las películas al 2x1 todos los martes.', 'img/promos/martes2x1.jpg', 'MARTES2X1', '2026-01-01', '2026-12-31', '2x1', 120, 0.00),
+('Combo Nachos', 'Compra un boleto IMAX y llévate unos nachos a mitad de precio.', 'img/promos/nachos.jpg', NULL, '2026-05-01', '2026-12-31', 'monto', 80, 25.00);

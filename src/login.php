@@ -16,15 +16,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT id, nombre, password_hash FROM usuarios WHERE email = ?");
+    $stmt = $pdo->prepare("SELECT id, nombre, password_hash, rol FROM usuarios WHERE email = ?");
     $stmt->execute([$email]);
     $usuario = $stmt->fetch();
 
     if ($usuario && password_verify($password, $usuario['password_hash'])) {
         $_SESSION['usuario_id'] = $usuario['id'];
         $_SESSION['usuario_nombre'] = $usuario['nombre'];
-        // Como no hemos impreso HTML, esta redirección funcionará perfecto
-        header('Location: index.php');
+        $_SESSION['usuario_rol'] = $usuario['rol'];
+        // Redirigimos a la página correcta según el rol
+        if (in_array($usuario['rol'], ['superadmin', 'admin'], true)) {
+            header('Location: admin.php');
+        } else {
+            header('Location: index.php');
+        }
         exit;
     } else {
         $error = "El correo o la contraseña son incorrectos.";

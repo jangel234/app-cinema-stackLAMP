@@ -20,9 +20,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errores)) {
         $hash = password_hash($password, PASSWORD_BCRYPT);
-        $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password_hash) VALUES (?, ?, ?)");
+
+        // Solo se permite crear usuarios con rol cliente desde el formulario público.
+        $rol = 'cliente';
+        if (isset($_POST['rol']) && $_POST['rol'] !== 'cliente') {
+            $rol = 'cliente';
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES (?, ?, ?, ?)");
         try {
-            $stmt->execute([$nombre, $email, $hash]);
+            $stmt->execute([$nombre, $email, $hash, $rol]);
             
             // OBTENER EL ID DEL NUEVO USUARIO
             $nuevo_id = $pdo->lastInsertId();
@@ -30,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // INICIAR SESIÓN AUTOMÁTICAMENTE
             $_SESSION['usuario_id'] = $nuevo_id;
             $_SESSION['usuario_nombre'] = $nombre;
+            $_SESSION['usuario_rol'] = $rol;
 
             // Marcar bandera de éxito para disparar el modal
             $registro_exitoso = true;
