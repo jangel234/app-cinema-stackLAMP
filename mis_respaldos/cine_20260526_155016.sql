@@ -710,13 +710,13 @@ CREATE TABLE `boletos` (
   `asiento_id` int NOT NULL,
   `precio_pagado` decimal(10,2) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `funcion_id` (`funcion_id`,`asiento_id`) COMMENT 'Evita que un asiento se venda dos veces para la misma función',
+  UNIQUE KEY `funcion_id` (`funcion_id`,`asiento_id`) COMMENT 'Evita que un asiento se venda dos veces para la misma funciÃ³n',
   KEY `compra_id` (`compra_id`),
   KEY `asiento_id` (`asiento_id`),
   CONSTRAINT `boletos_ibfk_1` FOREIGN KEY (`compra_id`) REFERENCES `compras` (`id`) ON DELETE CASCADE,
   CONSTRAINT `boletos_ibfk_2` FOREIGN KEY (`funcion_id`) REFERENCES `funciones` (`id`) ON DELETE CASCADE,
   CONSTRAINT `boletos_ibfk_3` FOREIGN KEY (`asiento_id`) REFERENCES `asientos` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -727,112 +727,83 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `boletos` WRITE;
 /*!40000 ALTER TABLE `boletos` DISABLE KEYS */;
 INSERT INTO `boletos` VALUES
-(1,7,1,550,120.00),
-(2,7,1,541,120.00),
-(3,7,1,532,120.00),
-(4,7,1,523,120.00),
-(5,7,1,514,120.00),
-(6,8,1,499,120.00),
-(7,8,1,490,120.00),
-(8,9,1,495,120.00),
-(9,9,1,504,120.00),
-(10,10,15,103,80.00),
-(11,10,15,94,80.00),
-(12,10,15,85,80.00),
-(13,10,15,158,80.00),
-(14,11,19,167,80.00),
-(15,11,19,240,80.00),
-(16,12,41,410,150.00),
-(17,12,41,483,150.00),
-(18,13,41,484,150.00),
-(19,13,41,475,150.00),
-(20,14,41,432,150.00),
-(21,14,41,423,150.00),
-(22,14,41,441,150.00),
-(23,15,11,17,80.00),
-(24,15,11,8,80.00),
-(25,16,14,402,150.00),
-(26,16,14,393,150.00),
-(27,17,2,375,150.00),
-(28,17,2,366,150.00),
-(29,18,8,188,80.00),
-(30,18,8,197,80.00),
-(31,19,20,304,95.00),
-(32,19,20,313,95.00),
-(33,20,43,378,150.00),
-(34,20,43,369,150.00),
-(35,21,9,265,95.00),
-(36,21,9,256,95.00),
-(37,21,9,247,95.00),
-(38,22,5,319,95.00),
-(39,22,5,310,95.00),
-(40,23,22,507,120.00),
-(41,23,22,511,120.00),
-(42,23,22,530,120.00),
-(43,23,22,538,120.00),
-(44,23,22,547,120.00),
-(45,23,22,516,120.00),
-(46,23,22,500,120.00),
-(47,23,22,491,120.00),
-(48,24,44,274,95.00),
-(49,24,44,265,95.00),
-(50,24,44,305,95.00),
-(51,24,44,314,95.00),
-(52,24,44,311,95.00),
-(53,24,44,300,95.00),
-(54,24,44,273,95.00),
-(55,24,44,286,95.00),
-(56,24,44,277,95.00),
-(57,24,44,270,95.00),
-(58,25,44,284,95.00),
-(59,25,44,267,95.00),
-(60,25,44,250,95.00),
-(61,25,44,259,95.00),
-(62,25,44,297,95.00),
-(63,25,44,288,95.00),
-(64,25,44,324,95.00),
-(65,25,44,315,95.00),
-(66,25,44,321,95.00),
-(67,25,44,312,95.00),
-(68,26,44,316,95.00),
-(69,26,44,307,95.00),
-(70,26,44,289,95.00),
-(71,26,44,280,95.00),
-(72,26,44,271,95.00),
-(73,26,44,253,95.00),
-(74,26,44,244,95.00),
-(75,26,44,272,95.00),
-(76,26,44,281,95.00),
-(77,26,44,290,95.00),
-(78,27,44,246,95.00),
-(79,27,44,247,95.00),
-(80,27,44,248,95.00),
-(81,27,44,257,95.00),
-(82,27,44,255,95.00),
-(83,27,44,285,95.00),
-(84,27,44,294,95.00),
-(85,27,44,304,95.00),
-(86,27,44,313,95.00),
-(87,27,44,322,95.00),
-(88,28,44,317,95.00),
-(89,28,44,308,95.00),
-(90,28,44,319,95.00),
-(91,28,44,310,95.00),
-(92,28,44,318,95.00),
-(93,28,44,292,95.00),
-(94,28,44,283,95.00),
-(95,28,44,254,95.00),
-(96,28,44,245,95.00),
-(97,28,44,278,95.00),
-(98,29,44,260,95.00),
-(99,29,44,251,95.00),
-(100,29,44,252,95.00),
-(101,29,44,249,95.00),
-(102,29,44,275,95.00),
-(103,30,11,15,80.00),
-(104,30,11,6,80.00),
-(105,30,11,51,80.00),
-(106,30,11,60,80.00);
+(1,1,15,138,80.00),
+(2,1,15,129,80.00),
+(3,1,15,120,80.00),
+(4,1,15,131,80.00),
+(5,1,15,122,80.00),
+(6,1,15,113,80.00),
+(7,1,15,104,80.00),
+(8,1,15,115,80.00),
+(9,1,15,106,80.00),
+(10,2,30,283,95.00),
+(11,2,30,294,95.00),
+(12,3,12,598,120.00),
+(13,3,12,599,120.00),
+(14,3,12,616,120.00),
+(15,3,12,624,120.00),
+(16,3,12,620,120.00),
+(17,3,12,575,120.00),
+(18,3,12,618,120.00),
+(19,3,12,645,120.00),
+(20,4,29,113,80.00),
+(21,4,29,97,80.00),
+(22,4,29,150,80.00),
+(23,4,29,148,80.00),
+(24,4,29,103,80.00),
+(25,4,29,112,80.00),
+(26,4,29,129,80.00),
+(27,4,29,120,80.00),
+(28,4,29,124,80.00),
+(29,4,29,116,80.00),
+(30,5,30,267,95.00),
+(31,5,30,257,95.00),
+(32,5,30,256,95.00),
+(33,5,30,309,95.00),
+(34,5,30,300,95.00),
+(35,6,31,456,150.00),
+(36,6,31,446,150.00),
+(37,6,31,454,150.00),
+(38,6,31,436,150.00),
+(39,6,31,418,150.00),
+(40,6,31,420,150.00),
+(41,6,31,439,150.00),
+(42,7,13,525,120.00),
+(43,7,13,526,120.00),
+(44,7,13,535,120.00),
+(45,7,13,536,120.00),
+(46,7,13,528,120.00),
+(47,7,13,519,120.00),
+(48,7,13,510,120.00),
+(49,7,13,511,120.00),
+(50,7,13,520,120.00),
+(51,8,1,525,120.00),
+(52,8,1,516,120.00),
+(53,8,1,534,120.00),
+(54,8,1,535,120.00),
+(55,8,1,528,120.00),
+(56,8,1,519,120.00),
+(57,8,1,529,120.00),
+(58,8,1,520,120.00),
+(59,8,1,537,120.00),
+(60,9,19,212,80.00),
+(61,9,19,203,80.00),
+(62,9,19,213,80.00),
+(63,9,19,204,80.00),
+(64,9,19,184,80.00),
+(65,9,19,193,80.00),
+(66,9,19,210,80.00),
+(67,9,19,201,80.00),
+(68,9,19,196,80.00),
+(69,9,19,187,80.00),
+(70,10,41,455,150.00),
+(71,10,41,446,150.00),
+(72,10,41,447,150.00),
+(73,10,41,438,150.00),
+(74,10,41,436,150.00),
+(75,10,41,427,150.00),
+(76,10,41,448,150.00),
+(77,10,41,457,150.00);
 /*!40000 ALTER TABLE `boletos` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -849,11 +820,14 @@ CREATE TABLE `compras` (
   `id` int NOT NULL AUTO_INCREMENT,
   `usuario_id` int NOT NULL,
   `total` decimal(10,2) NOT NULL,
+  `promocion_id` int DEFAULT NULL,
   `fecha` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `usuario_id` (`usuario_id`),
-  CONSTRAINT `compras_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `promocion_id` (`promocion_id`),
+  CONSTRAINT `compras_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
+  CONSTRAINT `compras_ibfk_2` FOREIGN KEY (`promocion_id`) REFERENCES `promociones` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -864,30 +838,16 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `compras` WRITE;
 /*!40000 ALTER TABLE `compras` DISABLE KEYS */;
 INSERT INTO `compras` VALUES
-(7,1,600.00,'2026-05-21 19:27:36'),
-(8,1,240.00,'2026-05-21 19:50:17'),
-(9,1,240.00,'2026-05-22 14:06:42'),
-(10,1,320.00,'2026-05-22 15:06:47'),
-(11,1,160.00,'2026-05-22 15:17:26'),
-(12,1,300.00,'2026-05-22 15:19:45'),
-(13,1,300.00,'2026-05-22 15:25:12'),
-(14,1,450.00,'2026-05-22 15:26:54'),
-(15,1,160.00,'2026-05-22 15:29:18'),
-(16,1,300.00,'2026-05-22 15:34:03'),
-(17,1,300.00,'2026-05-22 15:40:39'),
-(18,1,160.00,'2026-05-22 15:44:55'),
-(19,1,190.00,'2026-05-22 15:49:35'),
-(20,1,300.00,'2026-05-22 15:52:54'),
-(21,1,285.00,'2026-05-22 15:55:44'),
-(22,1,190.00,'2026-05-22 15:57:45'),
-(23,1,960.00,'2026-05-22 16:00:37'),
-(24,1,950.00,'2026-05-22 16:04:56'),
-(25,1,950.00,'2026-05-22 16:05:20'),
-(26,1,950.00,'2026-05-22 16:05:40'),
-(27,1,950.00,'2026-05-22 16:05:59'),
-(28,1,950.00,'2026-05-22 16:06:13'),
-(29,1,475.00,'2026-05-22 16:06:32'),
-(30,1,320.00,'2026-05-22 16:20:07');
+(1,1,720.00,NULL,'2026-05-26 15:35:31'),
+(2,1,190.00,NULL,'2026-05-26 15:43:22'),
+(3,1,960.00,NULL,'2026-05-26 15:48:23'),
+(4,1,800.00,NULL,'2026-05-26 15:48:39'),
+(5,1,475.00,NULL,'2026-05-26 15:49:03'),
+(6,1,1050.00,NULL,'2026-05-26 15:49:14'),
+(7,1,1080.00,NULL,'2026-05-26 15:49:25'),
+(8,1,1080.00,NULL,'2026-05-26 15:49:53'),
+(9,1,800.00,NULL,'2026-05-26 15:50:05'),
+(10,1,1200.00,NULL,'2026-05-26 15:50:16');
 /*!40000 ALTER TABLE `compras` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -983,10 +943,10 @@ CREATE TABLE `peliculas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `titulo` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   `sinopsis` text COLLATE utf8mb4_unicode_ci,
-  `duracion` int DEFAULT NULL COMMENT 'Duración en minutos',
+  `duracion` int DEFAULT NULL COMMENT 'DuraciÃ³n en minutos',
   `clasificacion` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `genero` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `poster_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Imagen vertical para la cuadrícula',
+  `poster_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Imagen vertical para la cuadrÃ­cula',
   `banner_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Imagen horizontal para el carrusel',
   `estado` enum('cartelera','proximamente') COLLATE utf8mb4_unicode_ci DEFAULT 'cartelera',
   PRIMARY KEY (`id`)
@@ -1001,21 +961,21 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `peliculas` WRITE;
 /*!40000 ALTER TABLE `peliculas` DISABLE KEYS */;
 INSERT INTO `peliculas` VALUES
-(1,'Interestelar','Un grupo de exploradores hace uso de un agujero de gusano para superar las limitaciones de los viajes espaciales humanos.',169,'B','Ciencia Ficción','img/posters/interestelar.jpg','img/banners/interestelar_banner.jpg','cartelera'),
-(2,'The Avengers','Los héroes más poderosos de la Tierra deben unirse para detener a Loki.',143,'B','Acción','img/posters/avengers.jpg','img/banners/avengers_banner.jpg','cartelera'),
-(3,'Super Mario Bros. La Película','Mario y Luigi viajan por un laberinto subterráneo para rescatar a la Princesa Peach.',92,'A','Animación','img/posters/mario.jpg','img/banners/mario_banner.jpg','cartelera'),
-(4,'Oppenheimer','La historia del científico estadounidense J. Robert Oppenheimer y su papel en el desarrollo de la bomba atómica.',180,'B15','Drama','img/posters/oppenheimer.jpg','img/banners/oppenheimer_banner.jpg','cartelera'),
+(1,'Interestelar','Un grupo de exploradores hace uso de un agujero de gusano para superar las limitaciones de los viajes espaciales humanos.',169,'B','Ciencia FicciÃ³n','img/posters/interestelar.jpg','img/banners/interestelar_banner.jpg','cartelera'),
+(2,'The Avengers','Los hÃ©roes mÃ¡s poderosos de la Tierra deben unirse para detener a Loki.',143,'B','AcciÃ³n','img/posters/avengers.jpg','img/banners/avengers_banner.jpg','cartelera'),
+(3,'Super Mario Bros. La PelÃ­cula','Mario y Luigi viajan por un laberinto subterrÃ¡neo para rescatar a la Princesa Peach.',92,'A','AnimaciÃ³n','img/posters/mario.jpg','img/banners/mario_banner.jpg','cartelera'),
+(4,'Oppenheimer','La historia del cientÃ­fico estadounidense J. Robert Oppenheimer y su papel en el desarrollo de la bomba atÃ³mica.',180,'B15','Drama','img/posters/oppenheimer.jpg','img/banners/oppenheimer_banner.jpg','cartelera'),
 (5,'Barbie','Barbie sufre una crisis que la lleva a cuestionar su mundo y su existencia.',114,'A','Comedia','img/posters/barbie.jpg','img/banners/barbie_banner.jpg','cartelera'),
-(6,'Spider-Man: No Way Home','La identidad de Spider-Man es revelada, trayendo consecuencias multiversales.',148,'B','Acción','img/posters/spiderman.jpg','img/banners/spiderman_banner.jpg','cartelera'),
-(7,'El Caballero de la Noche','Batman se enfrenta a su mayor reto físico y psicológico: El Guasón.',152,'B15','Acción','img/posters/batman.jpg','img/banners/batman_banner.jpg','cartelera'),
-(8,'Toy Story','Un muñeco vaquero se siente amenazado cuando un nuevo juguete espacial llega al cuarto de Andy.',81,'A','Animación','img/posters/toystory.jpg','img/banners/toystory_banner.jpg','cartelera'),
-(9,'Jurassic Park','Un parque temático de dinosaurios clonados se sale de control.',127,'B','Ciencia Ficción','img/posters/jurassic.jpg','img/banners/jurassic_banner.jpg','cartelera'),
-(10,'Avatar','Un marine parapléjico es enviado a la luna Pandora en una misión única.',162,'B','Ciencia Ficción','img/posters/avatar.jpg','img/banners/avatar_banner.jpg','cartelera'),
-(11,'El Rey León','El joven león Simba debe enfrentar su destino para convertirse en rey.',88,'A','Animación','img/posters/reyleon.jpg','img/banners/reyleon_banner.jpg','cartelera'),
-(12,'Matrix','Un hacker descubre la verdadera naturaleza de su realidad.',136,'B15','Ciencia Ficción','img/posters/matrix.jpg','img/banners/matrix_banner.jpg','cartelera'),
-(13,'Deadpool & Wolverine','Deadpool y Wolverine se unen en una aventura a través del multiverso.',127,'C','Acción','img/posters/deadpool.jpg','img/banners/deadpool_banner.jpg','cartelera'),
-(14,'Shrek','Un ogro gruñón emprende un viaje para rescatar a una princesa.',90,'A','Animación','img/posters/shrek.jpg','img/banners/shrek_banner.jpg','cartelera'),
-(15,'Volver al Futuro','Un joven es enviado accidentalmente 30 años en el pasado.',116,'A','Ciencia Ficción','img/posters/bttf.jpg','img/banners/bttf_banner.jpg','cartelera');
+(6,'Spider-Man: No Way Home','La identidad de Spider-Man es revelada, trayendo consecuencias multiversales.',148,'B','AcciÃ³n','img/posters/spiderman.jpg','img/banners/spiderman_banner.jpg','cartelera'),
+(7,'El Caballero de la Noche','Batman se enfrenta a su mayor reto fÃ­sico y psicolÃ³gico: El GuasÃ³n.',152,'B15','AcciÃ³n','img/posters/batman.jpg','img/banners/batman_banner.jpg','cartelera'),
+(8,'Toy Story','Un muÃ±eco vaquero se siente amenazado cuando un nuevo juguete espacial llega al cuarto de Andy.',81,'A','AnimaciÃ³n','img/posters/toystory.jpg','img/banners/toystory_banner.jpg','cartelera'),
+(9,'Jurassic Park','Un parque temÃ¡tico de dinosaurios clonados se sale de control.',127,'B','Ciencia FicciÃ³n','img/posters/jurassic.jpg','img/banners/jurassic_banner.jpg','cartelera'),
+(10,'Avatar','Un marine paraplÃ©jico es enviado a la luna Pandora en una misiÃ³n Ãºnica.',162,'B','Ciencia FicciÃ³n','img/posters/avatar.jpg','img/banners/avatar_banner.jpg','cartelera'),
+(11,'El Rey LeÃ³n','El joven leÃ³n Simba debe enfrentar su destino para convertirse en rey.',88,'A','AnimaciÃ³n','img/posters/reyleon.jpg','img/banners/reyleon_banner.jpg','cartelera'),
+(12,'Matrix','Un hacker descubre la verdadera naturaleza de su realidad.',136,'B15','Ciencia FicciÃ³n','img/posters/matrix.jpg','img/banners/matrix_banner.jpg','cartelera'),
+(13,'Deadpool & Wolverine','Deadpool y Wolverine se unen en una aventura a travÃ©s del multiverso.',127,'C','AcciÃ³n','img/posters/deadpool.jpg','img/banners/deadpool_banner.jpg','cartelera'),
+(14,'Shrek','Un ogro gruÃ±Ã³n emprende un viaje para rescatar a una princesa.',90,'A','AnimaciÃ³n','img/posters/shrek.jpg','img/banners/shrek_banner.jpg','cartelera'),
+(15,'Volver al Futuro','Un joven es enviado accidentalmente 30 aÃ±os en el pasado.',116,'A','Ciencia FicciÃ³n','img/posters/bttf.jpg','img/banners/bttf_banner.jpg','cartelera');
 /*!40000 ALTER TABLE `peliculas` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1036,6 +996,9 @@ CREATE TABLE `promociones` (
   `codigo_descuento` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `fecha_inicio` date DEFAULT NULL,
   `fecha_fin` date DEFAULT NULL,
+  `tipo` enum('monto','porcentaje','2x1') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'monto',
+  `stock` int NOT NULL DEFAULT '0',
+  `descuento` decimal(10,2) NOT NULL DEFAULT '0.00',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1048,8 +1011,8 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `promociones` WRITE;
 /*!40000 ALTER TABLE `promociones` DISABLE KEYS */;
 INSERT INTO `promociones` VALUES
-(1,'Martes 2x1','Disfruta de todas las películas al 2x1 todos los martes.','img/promos/martes2x1.jpg','MARTES2X1','2024-01-01','2024-12-31'),
-(2,'Combo Nachos','Compra un boleto IMAX y llévate unos nachos a mitad de precio.','img/promos/nachos.jpg',NULL,'2024-06-01','2024-08-31');
+(1,'CineStack: el mejor 2x1','Disfruta de todas las pelÃ­culas al 2x1 todos los martes.','img/promos/martes2x1.jpg','MARTES2X1','2026-01-01','2026-12-31','2x1',120,0.00),
+(2,'Combo Nachos','Compra un boleto IMAX y llÃ©vate unos nachos a mitad de precio.','img/promos/nachos.jpg',NULL,'2026-05-01','2026-12-31','monto',80,25.00);
 /*!40000 ALTER TABLE `promociones` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1104,7 +1067,7 @@ CREATE TABLE `usuarios` (
   `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rol` enum('cliente','admin') COLLATE utf8mb4_unicode_ci DEFAULT 'cliente',
+  `rol` enum('cliente','admin','superadmin') COLLATE utf8mb4_unicode_ci DEFAULT 'cliente',
   `fecha_registro` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
@@ -1119,7 +1082,7 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
 INSERT INTO `usuarios` VALUES
-(1,'paco','jaguilar57@ucol.mx','$2y$10$QRAnSb0YbwYIHypew3ClTeq1HGgZ3LjKQPk0wFWv.8lmlrqw3p9OO','cliente','2026-05-21 19:27:25');
+(1,'angel','jaguilar57@ucol.mx','$2y$10$yHQNwSMaZY/VBYsgDgMkVuvLbGiY804Us/lOLIywA0lsk1BDex1FO','cliente','2026-05-26 15:35:16');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1134,4 +1097,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-05-22 16:20:07
+-- Dump completed on 2026-05-26 15:50:16

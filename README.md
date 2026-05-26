@@ -31,3 +31,11 @@ escInEsTaCk.1@1.LAMPserver
 
 ### Contraseña de app (correos)
 lbaopekbxpaxitpmwvj
+
+
+
+
+
+### cred
+admin@cine.local
+Admin1234
