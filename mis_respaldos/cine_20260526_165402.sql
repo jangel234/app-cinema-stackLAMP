@@ -1,14 +1,3 @@
-DROP DATABASE IF EXISTS cine;
-CREATE DATABASE cine CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE cine;
-
-
-
--- DE AQUI PARA ABAJO VAN LOS RESPALDOS
-
-
-
-
 /*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19-11.8.6-MariaDB, for debian-linux-gnu (x86_64)
 --
@@ -727,7 +716,7 @@ CREATE TABLE `boletos` (
   CONSTRAINT `boletos_ibfk_1` FOREIGN KEY (`compra_id`) REFERENCES `compras` (`id`) ON DELETE CASCADE,
   CONSTRAINT `boletos_ibfk_2` FOREIGN KEY (`funcion_id`) REFERENCES `funciones` (`id`) ON DELETE CASCADE,
   CONSTRAINT `boletos_ibfk_3` FOREIGN KEY (`asiento_id`) REFERENCES `asientos` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=111 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -843,11 +832,7 @@ INSERT INTO `boletos` VALUES
 (103,13,42,189,40.00),
 (104,13,42,180,40.00),
 (105,14,42,164,64.00),
-(106,14,42,173,64.00),
-(107,15,40,518,60.00),
-(108,15,40,509,60.00),
-(109,15,40,519,60.00),
-(110,15,40,510,60.00);
+(106,14,42,173,64.00);
 /*!40000 ALTER TABLE `boletos` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -871,7 +856,7 @@ CREATE TABLE `compras` (
   KEY `promocion_id` (`promocion_id`),
   CONSTRAINT `compras_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
   CONSTRAINT `compras_ibfk_2` FOREIGN KEY (`promocion_id`) REFERENCES `promociones` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -895,8 +880,7 @@ INSERT INTO `compras` VALUES
 (11,1,800.00,NULL,'2026-05-26 16:17:14'),
 (12,1,720.00,NULL,'2026-05-26 16:32:50'),
 (13,1,320.00,1,'2026-05-26 16:33:06'),
-(14,1,128.00,4,'2026-05-26 16:54:02'),
-(15,1,240.00,5,'2026-05-26 16:55:02');
+(14,1,128.00,4,'2026-05-26 16:54:02');
 /*!40000 ALTER TABLE `compras` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1063,8 +1047,8 @@ INSERT INTO `promociones` VALUES
 (1,'CineStack: el mejor 2x1','Disfruta de todas las pelÃ­culas al 2x1 todos los martes.','img/promos/martes2x1.jpg','MARTES2X1','2026-01-01','2026-12-31','2x1',119,0.00),
 (2,'Combo Nachos','Compra un boleto IMAX y llÃ©vate unos nachos a mitad de precio.','img/promos/nachos.jpg',NULL,'2026-05-01','2026-12-31','monto',80,25.00),
 (3,'Combo Palomitas + Gaseosa','Boleto + combo de palomitas y bebida a precio promocional.','img/promotions/combo1.jpg','cineDESCstack25promo','2026-05-26','2026-06-25','monto',25,50.00),
-(4,'Descuento 20%','20% de descuento en el precio total de tu compra.','img/promotions/discount20.jpg','cine20stack20promo','2026-05-26','2026-06-25','porcentaje',40,20.00),
-(5,'Pack Amigos','3 boletos por el precio de 2.','img/promotions/pack_amigos.jpg','cine2x1stack2x1promo','2026-05-26','2026-06-25','2x1',14,30.00);
+(4,'Descuento 20%','20% de descuento en el precio total de tu compra.','img/promotions/discount20.jpg','cine20stack20promo','2026-05-26','2026-06-25','porcentaje',39,20.00),
+(5,'Pack Amigos','3 boletos por el precio de 2.','img/promotions/pack_amigos.jpg','cine2x1stack2x1promo','2026-05-26','2026-06-25','2x1',15,30.00);
 /*!40000 ALTER TABLE `promociones` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -1151,4 +1135,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-05-26 16:55:02
+-- Dump completed on 2026-05-26 16:54:02

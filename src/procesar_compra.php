@@ -1,6 +1,5 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 require_once 'db.php';
 if (session_status() === PHP_SESSION_NONE) {
@@ -40,7 +39,7 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 $funcion_id = $_POST['funcion_id'] ?? 0;
-$promocion_id = !empty($_POST['promocion_id']) ? (int)$_POST['promocion_id'] : null;
+$codigo_promocion = trim($_POST['codigo_promocion'] ?? '');
 $asientos_seleccionados = $_POST['asientos'] ?? [];
 
 // Si alguien entra directamente a esta URL sin enviar datos, lo regresamos al inicio
@@ -74,14 +73,16 @@ try {
     $precio_unitario = $funcion['precio'];
     $descuento = 0.00;
     $promoTitulo = '';
-    if ($promocion_id) {
-        $stmtPromo = $pdo->prepare("SELECT id, titulo, descuento, tipo FROM promociones WHERE id = ? AND stock > 0 AND fecha_inicio <= NOW() AND fecha_fin >= NOW() LIMIT 1 FOR UPDATE");
-        $stmtPromo->execute([$promocion_id]);
+    $promocion_id = null;
+    if (!empty($codigo_promocion)) {
+        $stmtPromo = $pdo->prepare("SELECT id, titulo, descuento, tipo FROM promociones WHERE codigo_descuento = ? AND stock > 0 AND fecha_inicio <= NOW() AND fecha_fin >= NOW() LIMIT 1 FOR UPDATE");
+        $stmtPromo->execute([$codigo_promocion]);
         $promoData = $stmtPromo->fetch();
         if (!$promoData) {
-            throw new Exception("La promoción seleccionada ya no está disponible.");
+            throw new Exception("El código de promoción no es válido o ya no está disponible.");
         }
         $promoTitulo = $promoData['titulo'];
+        $promocion_id = $promoData['id'];
 
         $subtotal = $cantidad * $precio_unitario;
         if ($promoData['tipo'] === 'porcentaje') {
@@ -218,7 +219,7 @@ include 'includes/header.php';
                     <h1 class="display-1 text-warning mb-3">⚠️</h1>
                     <h3 class="fw-bold" style="color: var(--onyx);">Transacción Declinada</h3>
                     <p class="text-muted mt-3 mb-4"><?= htmlspecialchars($error_compra) ?></p>
-                    <a href="index.php" class="btn btn-baltic w-100 py-2">Volver a la Cartelera</a>
+                    <a href="comprar.php?funcion_id=<?= htmlspecialchars($funcion_id) ?>" class="btn btn-baltic w-100 py-2">Volver a Selección de Asientos</a>
                 </div>
             </div>
         </div>

@@ -47,3 +47,10 @@ Admin0987
 ### cred user 
 jaguilar57@uol.mx
 123456
+
+
+### Códigos de Promoción (Disponibles al realizar una compra)
+Puedes utilizar estos códigos de descuento al momento de elegir tus asientos:
+- **Combo Palomitas + Bebida (Descuento directo en el monto):** `cineDESCstack25promo`
+- **Descuento del 20% en tu total:** `cine20stack20promo`
+- **Paquete 2x1 (3 boletos por 2):** `cine2x1stack2x1promo`

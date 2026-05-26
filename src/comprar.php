@@ -21,7 +21,6 @@ function ensurePromocionesSchema(PDO $pdo) {
 }
 
 function seedSamplePromociones(PDO $pdo) {
-    $count = $pdo->query("SELECT COUNT(*) FROM promociones")->fetchColumn();
     $fechaInicio = date('Y-m-d');
     $fechaFin = date('Y-m-d', strtotime('+30 days'));
     $promociones = [
@@ -29,7 +28,7 @@ function seedSamplePromociones(PDO $pdo) {
             'titulo' => 'Combo Palomitas + Gaseosa',
             'descripcion' => 'Boleto + combo de palomitas y bebida a precio promocional.',
             'imagen_url' => 'img/promotions/combo1.jpg',
-            'codigo_descuento' => 'COMBO2026',
+            'codigo_descuento' => 'cineDESCstack25promo',
             'tipo' => 'monto',
             'stock' => 25,
             'descuento' => 50.00,
@@ -38,7 +37,7 @@ function seedSamplePromociones(PDO $pdo) {
             'titulo' => 'Descuento 20%',
             'descripcion' => '20% de descuento en el precio total de tu compra.',
             'imagen_url' => 'img/promotions/discount20.jpg',
-            'codigo_descuento' => 'DESCUENTO20',
+            'codigo_descuento' => 'cine20stack20promo',
             'tipo' => 'porcentaje',
             'stock' => 40,
             'descuento' => 20.00,
@@ -47,17 +46,35 @@ function seedSamplePromociones(PDO $pdo) {
             'titulo' => 'Pack Amigos',
             'descripcion' => '3 boletos por el precio de 2.',
             'imagen_url' => 'img/promotions/pack_amigos.jpg',
-            'codigo_descuento' => 'AMIGOS3x2',
+            'codigo_descuento' => 'cine2x1stack2x1promo',
             'tipo' => '2x1',
             'stock' => 15,
             'descuento' => 30.00,
         ],
     ];
 
-    if ($count == 0) {
-        $stmt = $pdo->prepare("INSERT INTO promociones (titulo, descripcion, imagen_url, codigo_descuento, fecha_inicio, fecha_fin, tipo, stock, descuento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        foreach ($promociones as $promo) {
-            $stmt->execute([
+    $stmtSelect = $pdo->prepare("SELECT id FROM promociones WHERE codigo_descuento = ? LIMIT 1");
+    $stmtInsert = $pdo->prepare("INSERT INTO promociones (titulo, descripcion, imagen_url, codigo_descuento, fecha_inicio, fecha_fin, tipo, stock, descuento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmtUpdate = $pdo->prepare("UPDATE promociones SET titulo = ?, descripcion = ?, imagen_url = ?, fecha_inicio = ?, fecha_fin = ?, tipo = ?, stock = ?, descuento = ? WHERE id = ?");
+    
+    foreach ($promociones as $promo) {
+        $stmtSelect->execute([$promo['codigo_descuento']]);
+        $existing = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+
+        if ($existing) {
+            $stmtUpdate->execute([
+                $promo['titulo'],
+                $promo['descripcion'],
+                $promo['imagen_url'],
+                $fechaInicio,
+                $fechaFin,
+                $promo['tipo'],
+                $promo['stock'],
+                $promo['descuento'],
+                $existing['id'],
+            ]);
+        } else {
+            $stmtInsert->execute([
                 $promo['titulo'],
                 $promo['descripcion'],
                 $promo['imagen_url'],
@@ -68,43 +85,6 @@ function seedSamplePromociones(PDO $pdo) {
                 $promo['stock'],
                 $promo['descuento'],
             ]);
-        }
-        return;
-    }
-
-    $activeCount = $pdo->query("SELECT COUNT(*) FROM promociones WHERE stock > 0 AND fecha_inicio <= CURDATE() AND fecha_fin >= CURDATE()")->fetchColumn();
-    if ($activeCount == 0) {
-        $stmtSelect = $pdo->prepare("SELECT id FROM promociones WHERE codigo_descuento = ? LIMIT 1");
-        $stmtInsert = $pdo->prepare("INSERT INTO promociones (titulo, descripcion, imagen_url, codigo_descuento, fecha_inicio, fecha_fin, tipo, stock, descuento) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmtUpdate = $pdo->prepare("UPDATE promociones SET titulo = ?, descripcion = ?, imagen_url = ?, fecha_inicio = ?, fecha_fin = ?, tipo = ?, stock = ?, descuento = ? WHERE id = ?");
-        foreach ($promociones as $promo) {
-            $stmtSelect->execute([$promo['codigo_descuento']]);
-            $existing = $stmtSelect->fetch(PDO::FETCH_ASSOC);
-            if ($existing) {
-                $stmtUpdate->execute([
-                    $promo['titulo'],
-                    $promo['descripcion'],
-                    $promo['imagen_url'],
-                    $fechaInicio,
-                    $fechaFin,
-                    $promo['tipo'],
-                    $promo['stock'],
-                    $promo['descuento'],
-                    $existing['id'],
-                ]);
-            } else {
-                $stmtInsert->execute([
-                    $promo['titulo'],
-                    $promo['descripcion'],
-                    $promo['imagen_url'],
-                    $promo['codigo_descuento'],
-                    $fechaInicio,
-                    $fechaFin,
-                    $promo['tipo'],
-                    $promo['stock'],
-                    $promo['descuento'],
-                ]);
-            }
         }
     }
 }
@@ -188,7 +168,7 @@ if ($vista_actual === 'asientos') {
 
     // Consultar promociones activas disponibles para esta compra
     $stmtPromos = $pdo->prepare(
-        "SELECT id, titulo, descripcion, stock, descuento, tipo FROM promociones 
+        "SELECT id, titulo, descripcion, stock, descuento, tipo, codigo_descuento FROM promociones 
          WHERE stock > 0 AND fecha_inicio <= NOW() AND fecha_fin >= NOW() 
          ORDER BY stock ASC, descuento DESC"
     );
@@ -353,159 +333,101 @@ include 'includes/header.php';
                         <?php endforeach; ?>
                     </div>
 
-                    <div class="d-flex justify-content-center mt-5 text-muted small gap-4">
-                        <div><span class="leyenda-asiento bg-secondary"></span> Ocupado</div>
-                        <div><span class="leyenda-asiento asiento-disponible"></span> Disponible</div>
-                        <div><span class="leyenda-asiento" style="background-color: var(--cherry-rose);"></span> Seleccionado</div>
+                    <div class="d-flex justify-content-center mt-4 gap-4">
+                        <div><span class="leyenda-asiento asiento-disponible"></span>Disponible</div>
+                        <div><span class="leyenda-asiento asiento-seleccionado"></span>Seleccionado</div>
+                        <div><span class="leyenda-asiento asiento-ocupado"></span>Ocupado</div>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0 compra-resumen">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold border-bottom pb-3 mb-3">Resumen de Compra</h5>
-                        <p class="mb-1 text-muted small">Película:</p>
-                        <p class="fw-bold"><?= htmlspecialchars($detalle_funcion['titulo']) ?></p>
-                        
-                        <p class="mb-1 text-muted small">Función:</p>
-                        <p class="fw-bold"><?= date('d/m/Y h:i A', strtotime($detalle_funcion['fecha_hora'])) ?></p>
+                <div class="card shadow-sm border-0 p-4 compra-resumen bg-light">
+                    <h4 class="fw-bold mb-3 border-bottom pb-2">Resumen de Compra</h4>
+                    
+                    <p class="mb-1 text-muted">Película</p>
+                    <h5 class="fw-bold"><?= htmlspecialchars($detalle_funcion['titulo']) ?></h5>
+                    
+                    <p class="mb-1 text-muted mt-3">Función</p>
+                    <p class="fw-bold mb-0"><?= date('d/m/Y h:i A', strtotime($detalle_funcion['fecha_hora'])) ?></p>
+                    <p class="small text-muted mb-0"><?= htmlspecialchars($detalle_funcion['sala']) ?></p>
 
-                        <p class="mb-1 text-muted small">Sala:</p>
-                        <p class="fw-bold"><?= htmlspecialchars($detalle_funcion['sala']) ?></p>
+                    <hr>
 
-                        <div class="border-top pt-3 mt-3">
-                            <p class="d-flex justify-content-between mb-1">
-                                <span>Boletos (<span id="contador-boletos">0</span>):</span>
-                                <span class="fw-bold text-success">$<span id="total-precio">0.00</span></span>
-                            </p>
-                            <p class="text-muted small text-truncate" id="lista-asientos-texto">Ningún asiento seleccionado</p>
-                        </div>
+                    <p class="mb-1 text-muted">Asientos Seleccionados (<span id="contador-asientos">0</span>)</p>
+                    <p class="fw-bold text-primary" id="lista-asientos">Ninguno</p>
 
-                        <form id="form-compra" action="procesar_compra.php" method="POST">
-                            <input type="hidden" name="funcion_id" value="<?= $funcion_id ?>">
-                            <?php if (!empty($promociones)): ?>
-                                <div class="mb-3">
-                                    <label for="promocion" class="form-label small fw-bold">Promoción disponible</label>
-                                    <select id="promocion" name="promocion_id" class="form-select" onchange="actualizarResumen()">
-                                        <option value="" data-descuento="0" data-tipo="monto">Ninguna</option>
-                                        <?php foreach ($promociones as $promo): ?>
-                                            <?php
-                                                $promoLabel = htmlspecialchars($promo['titulo']);
-                                                if ($promo['tipo'] === 'porcentaje') {
-                                                    $promoLabel .= ' - ' . number_format($promo['descuento'], 0) . '% de descuento';
-                                                } elseif ($promo['tipo'] === '2x1') {
-                                                    $promoLabel .= ' - 2x1 en boletos';
-                                                } else {
-                                                    $promoLabel .= ' - $' . number_format($promo['descuento'], 2) . ' de descuento';
-                                                }
-                                            ?>
-                                            <option value="<?= $promo['id'] ?>" data-descuento="<?= $promo['descuento'] ?>" data-tipo="<?= htmlspecialchars($promo['tipo']) ?>">
-                                                <?= $promoLabel ?> (<?= htmlspecialchars($promo['stock']) ?> disponibles)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div class="form-text">Selecciona una promoción para aplicarla en tu compra. Si eliges 2x1, el precio se ajustará automáticamente.</div>
-                                </div>
-                            <?php endif; ?>
-                            <div class="border-top pt-3 mt-3">
-                                <p class="d-flex justify-content-between mb-1">
-                                    <span>Boletos (<span id="contador-boletos">0</span>):</span>
-                                    <span class="fw-bold text-success">$<span id="total-precio">0.00</span></span>
-                                </p>
-                                <p class="text-muted small text-truncate" id="lista-asientos-texto">Ningún asiento seleccionado</p>
-                                <p class="text-muted small mb-0" id="descuento-texto">Descuento: $<span id="descuento-precio">0.00</span></p>
-                            </div>
-                            <div id="inputs-asientos"></div>
-                            <button type="submit" id="btn-pagar" class="btn btn-cherry w-100 mt-3 py-2" disabled>
-                                Confirmar y Pagar
-                            </button>
-                        </form>
+                    <div class="d-flex justify-content-between mt-3">
+                        <span class="text-muted">Precio Unitario:</span>
+                        <span class="fw-bold">$<span id="precio-unitario"><?= number_format($detalle_funcion['precio'], 2) ?></span></span>
                     </div>
+
+                    <div class="d-flex justify-content-between mt-2 fs-5">
+                        <span class="fw-bold">Total estimado:</span>
+                        <span class="fw-bold text-success">$<span id="total-precio">0.00</span></span>
+                    </div>
+
+                    <form action="procesar_compra.php" method="POST" id="form-compra">
+                        <input type="hidden" name="funcion_id" value="<?= $funcion_id ?>">
+                        <div id="inputs-asientos"></div>
+                        
+                        <label for="codigo_promocion" class="form-label fw-bold mt-3">Código de Promoción (Opcional)</label>
+                        <input type="text" class="form-control mb-3" name="codigo_promocion" id="codigo_promocion" placeholder="ingresa tu código aquí...">
+
+                        <button type="submit" class="btn btn-cherry w-100 py-2 mt-2 shadow" id="btn-comprar" disabled>Confirmar Compra</button>
+                    </form>
                 </div>
             </div>
         </div>
-
-        <script>
-            const precioUnitario = <?= $detalle_funcion['precio'] ?>;
-            let asientosSeleccionados = [];
-            const selectPromocion = document.getElementById('promocion');
-
-            function toggleAsiento(btn) {
-                const idAsiento = btn.getAttribute('data-id');
-                const etiqueta = btn.getAttribute('data-etiqueta');
-
-                if (btn.classList.contains('asiento-seleccionado')) {
-                    // Deseleccionar
-                    btn.classList.remove('asiento-seleccionado');
-                    asientosSeleccionados = asientosSeleccionados.filter(item => item.id !== idAsiento);
-                } else {
-                    // Seleccionar (Límite opcional: 10 boletos por transacción)
-                    if (asientosSeleccionados.length >= 10) {
-                        alert("Solo puedes comprar hasta 10 boletos por transacción.");
-                        return;
-                    }
-                    btn.classList.add('asiento-seleccionado');
-                    asientosSeleccionados.push({ id: idAsiento, etiqueta: etiqueta });
-                }
-                
-                actualizarResumen();
-            }
-
-            function actualizarResumen() {
-                const contador = document.getElementById('contador-boletos');
-                const total = document.getElementById('total-precio');
-                const listaTexto = document.getElementById('lista-asientos-texto');
-                const containerInputs = document.getElementById('inputs-asientos');
-                const btnPagar = document.getElementById('btn-pagar');
-
-                const cantidad = asientosSeleccionados.length;
-                const subtotal = cantidad * precioUnitario;
-                let descuentoSeleccionado = 0;
-                let tipoPromocion = 'monto';
-
-                if (selectPromocion) {
-                    tipoPromocion = selectPromocion.selectedOptions[0].dataset.tipo || 'monto';
-                    const descuentoRaw = parseFloat(selectPromocion.selectedOptions[0].dataset.descuento || '0');
-                    if (tipoPromocion === 'porcentaje') {
-                        descuentoSeleccionado = subtotal * (descuentoRaw / 100);
-                    } else if (tipoPromocion === '2x1') {
-                        const pares = Math.ceil(cantidad / 2);
-                        descuentoSeleccionado = subtotal - (pares * precioUnitario);
-                    } else {
-                        descuentoSeleccionado = descuentoRaw;
-                    }
-                }
-
-                const totalFinal = Math.max(0, subtotal - descuentoSeleccionado);
-                
-                // Actualizar textos
-                contador.innerText = cantidad;
-                total.innerText = totalFinal.toFixed(2);
-                document.getElementById('descuento-precio').innerText = descuentoSeleccionado.toFixed(2);
-                
-                if (cantidad > 0) {
-                    const nombresAsientos = asientosSeleccionados.map(a => a.etiqueta).join(', ');
-                    listaTexto.innerText = "Lugares: " + nombresAsientos;
-                    btnPagar.disabled = false;
-                } else {
-                    listaTexto.innerText = "Ningún asiento seleccionado";
-                    btnPagar.disabled = true;
-                }
-
-                // Generar los inputs ocultos (name="asientos[]") para el POST
-                containerInputs.innerHTML = '';
-                asientosSeleccionados.forEach(asiento => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'asientos[]';
-                    input.value = asiento.id;
-                    containerInputs.appendChild(input);
-                });
-            }
-        </script>
     <?php endif; ?>
-
 </div>
 
+<script>
+    let asientosSeleccionados = [];
+    const precioUnitario = <?= $detalle_funcion['precio'] ?? 0 ?>;
+
+    function toggleAsiento(btn) {
+        const id = btn.getAttribute('data-id');
+        const etiqueta = btn.getAttribute('data-etiqueta');
+
+        if (asientosSeleccionados.some(a => a.id === id)) {
+            asientosSeleccionados = asientosSeleccionados.filter(a => a.id !== id);
+            btn.classList.remove('asiento-seleccionado');
+        } else {
+            asientosSeleccionados.push({ id, etiqueta });
+            btn.classList.add('asiento-seleccionado');
+        }
+        actualizarResumen();
+    }
+
+    function actualizarResumen() {
+        const contador = document.getElementById('contador-asientos');
+        const lista = document.getElementById('lista-asientos');
+        const total = document.getElementById('total-precio');
+        const btnComprar = document.getElementById('btn-comprar');
+        const inputsContainer = document.getElementById('inputs-asientos');
+
+        contador.textContent = asientosSeleccionados.length;
+        
+        if (asientosSeleccionados.length > 0) {
+            lista.textContent = asientosSeleccionados.map(a => a.etiqueta).join(', ');
+            total.textContent = (asientosSeleccionados.length * precioUnitario).toFixed(2);
+            btnComprar.disabled = false;
+        } else {
+            lista.textContent = 'Ninguno';
+            total.textContent = '0.00';
+            btnComprar.disabled = true;
+        }
+
+        // Generar inputs ocultos para el formulario
+        inputsContainer.innerHTML = '';
+        asientosSeleccionados.forEach(a => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'asientos[]';
+            input.value = a.id;
+            inputsContainer.appendChild(input);
+        });
+    }
+</script>
 <?php include 'includes/footer.php'; ?>
